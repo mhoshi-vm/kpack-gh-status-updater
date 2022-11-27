@@ -84,7 +84,6 @@ spec:
                 latestImage:
                   type: string
           type: object
-          x-kubernetes-preserve-unknown-fields: true
           # https://github.com/pivotal/kpack/blob/main/docs/build.md
       subresources:
         status: { }
