@@ -70,7 +70,7 @@ spec:
               type: object
               properties:
                 conditions:
-                  type: Array
+                  type: array
                   items:
                     type: object
                     properties:
