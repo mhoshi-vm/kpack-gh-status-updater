@@ -79,7 +79,7 @@ spec:
                       status:
                         type: string
                       type:
-                        type: Succeeded
+                        type: string
                 latestImage:
                   type: string
           type: object
