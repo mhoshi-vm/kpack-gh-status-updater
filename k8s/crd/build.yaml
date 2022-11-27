@@ -26,6 +26,7 @@ spec:
               type: object
             # https://github.com/pivotal/kpack/blob/main/docs/build.md
             spec:
+              type: object
               description: BuildSpec defines the desired state of Build
               properties:
                 tags:
