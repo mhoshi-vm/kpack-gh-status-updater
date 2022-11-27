@@ -1,0 +1,119 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: builds.kpack.io
+spec:
+  group: kpack.io
+  versions:
+    - name: v1alpha2
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          description: Build is the schema for the Build API
+          properties:
+            apiVersion:
+              description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+              type: string
+            kind:
+              description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+              type: string
+            metadata:
+              type: object
+            # https://github.com/pivotal/kpack/blob/main/docs/build.md
+            spec:
+              description: BuildSpec defines the desired state of Build
+              properties:
+                tags:
+                  type: array
+                  items:
+                    type: string
+                serviceAccountName:
+                  type: string
+                builder:
+                  type: object
+                source:
+                  type: object
+                  properties:
+                    git:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                        revision:
+                          type: string
+                    subPath:
+                      type: string
+                activeDeadlineSeconds:
+                  type: integer
+                cache:
+                  type: object
+                env:
+                  type: object
+                defaultProcess:
+                  type: object
+                projectDescriptorPath:
+                  type: object
+                resources:
+                  type: object
+                tolerations:
+                  type: object
+                nodeSelector:
+                  type: object
+                affinity:
+                  type: object
+            status:
+              type: object
+              properties:
+                conditions:
+                  type: Array
+                  items:
+                    type: object
+                    properties:
+                      lastTransitionTime:
+                        type: string
+                      status:
+                        type: string
+                      type:
+                        type: Succeeded
+                latestImage:
+                  type: string
+          type: object
+          x-kubernetes-preserve-unknown-fields: true
+          # https://github.com/pivotal/kpack/blob/main/docs/build.md
+      subresources:
+        status: { }
+      additionalPrinterColumns:
+        - name: Image
+          type: string
+          jsonPath: ".status.latestImage"
+        - name: Succeeded
+          type: string
+          jsonPath: ".status.conditions[?(@.type==\"Succeeded\")].status"
+  conversion:
+    strategy: Webhook
+    webhook:
+      clientConfig:
+        service:
+          name: kpack-webhook
+          namespace: kpack
+          path: /convert
+          port: 443
+      conversionReviewVersions: [ "v1" ]
+  names:
+    kind: Build
+    listKind: BuildList
+    singular: build
+    plural: builds
+    shortNames:
+      - cnbbuild
+      - cnbbuilds
+      - bld
+      - blds
+    categories:
+      - kpack
+  scope: Namespaced
