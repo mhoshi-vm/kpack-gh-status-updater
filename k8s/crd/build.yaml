@@ -10,24 +10,22 @@ spec:
       storage: true
       schema:
         openAPIV3Schema:
-          description: Build is the schema for the Build API
           # https://github.com/pivotal/kpack/blob/main/docs/build.md
           properties:
             apiVersion:
-              description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
               type: string
             kind:
-              description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
               type: string
             metadata:
               type: object
+              properties:
+                annotations:
+                  type: object
+                  properties:
+                    image.kpack.io/buildChanges:
+                      type: string
             spec:
               type: object
-              description: BuildSpec defines the desired state of Build
               properties:
                 tags:
                   type: array
@@ -49,24 +47,6 @@ spec:
                           type: string
                     subPath:
                       type: string
-                activeDeadlineSeconds:
-                  type: integer
-                cache:
-                  type: object
-                env:
-                  type: object
-                defaultProcess:
-                  type: object
-                projectDescriptorPath:
-                  type: object
-                resources:
-                  type: object
-                tolerations:
-                  type: object
-                nodeSelector:
-                  type: object
-                affinity:
-                  type: object
             status:
               type: object
               properties:
