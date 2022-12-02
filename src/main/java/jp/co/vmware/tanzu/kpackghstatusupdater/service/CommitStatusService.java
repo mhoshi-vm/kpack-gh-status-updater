@@ -42,7 +42,7 @@ public class CommitStatusService {
         updateStatusToRepo(key, sha, success);
 
         String status = determineStatus(sha);
-        logger.info("Desired status :"+ status);
+        logger.info("Desired status :" + status);
 
         String apiUrl = null;
         HttpHeaders headers = new HttpHeaders();
@@ -61,10 +61,10 @@ public class CommitStatusService {
         HttpEntity<Void> getEntity = new HttpEntity<>(headers);
 
         JsonNode responseBody = restTemplate.exchange(targetUrl, HttpMethod.GET, getEntity, JsonNode.class).getBody();
-        if (responseBody != null && responseBody.get(0) != null){
+        if (responseBody != null && responseBody.get(0) != null) {
             String latestStatus = responseBody.get(0).get("state").textValue();
 
-            if (latestStatus.equals(desiredStatus)){
+            if (latestStatus.equals(desiredStatus)) {
                 logger.info("No status change for " + key + " : " + sha + " , skipping");
                 return;
             }
@@ -74,7 +74,7 @@ public class CommitStatusService {
         jsonObject.put("state", desiredStatus);
         jsonObject.put("context", "Kpack");
 
-        if (tags.size() > 0){
+        if (tags.size() > 0) {
             String descriptionUrl = tags.get(0).replaceAll("^([^/]*)(.*)", "https://$1");
             jsonObject.put("description", "image :" + tags.get(0));
             jsonObject.put("target_url", descriptionUrl);
@@ -108,7 +108,7 @@ public class CommitStatusService {
             suceessList.add(commitStatus.getSuccess());
         }
 
-        if (! suceessList.isEmpty() && suceessList.stream().allMatch("True"::equals)) {
+        if (!suceessList.isEmpty() && suceessList.stream().allMatch("True"::equals)) {
             return suceessList.get(0);
         } else {
             return "Pending";
