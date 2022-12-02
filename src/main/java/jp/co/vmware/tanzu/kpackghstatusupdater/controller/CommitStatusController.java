@@ -15,7 +15,7 @@ public class CommitStatusController {
     }
 
     @GetMapping("/build/description")
-    public String getDescription(@RequestParam String id) {
+    public String getDescription(@RequestParam Integer id) {
         return commitStatusRepository.findById(id).toString();
     }
 }

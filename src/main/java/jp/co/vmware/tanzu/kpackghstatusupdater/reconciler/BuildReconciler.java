@@ -5,8 +5,9 @@ import io.kubernetes.client.extended.controller.reconciler.Request;
 import io.kubernetes.client.extended.controller.reconciler.Result;
 import io.kubernetes.client.informer.SharedIndexInformer;
 import jp.co.vmware.tanzu.kpackghstatusupdater.models.*;
-import jp.co.vmware.tanzu.kpackghstatusupdater.repository.CommitStatusRepository;
-import jp.co.vmware.tanzu.kpackghstatusupdater.utils.GithubStatus;
+import jp.co.vmware.tanzu.kpackghstatusupdater.service.CommitStatusService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,16 +17,15 @@ import java.util.Objects;
 @Component
 public class BuildReconciler implements Reconciler {
 
+    private static final Logger logger = LoggerFactory.getLogger(BuildReconciler.class);
+
     private final SharedIndexInformer<V1alpha2Build> buildSharedIndexInformer;
 
-    private final CommitStatusRepository commitStatusRepository;
+    private final CommitStatusService commitStatusService;
 
-    private final GithubStatus githubStatus;
-
-    public BuildReconciler(SharedIndexInformer<V1alpha2Build> buildSharedIndexInformer, CommitStatusRepository commitStatusRepository, GithubStatus githubStatus) {
+    public BuildReconciler(SharedIndexInformer<V1alpha2Build> buildSharedIndexInformer, CommitStatusService commitStatusService) {
         this.buildSharedIndexInformer = buildSharedIndexInformer;
-        this.commitStatusRepository = commitStatusRepository;
-        this.githubStatus = githubStatus;
+        this.commitStatusService = commitStatusService;
     }
 
     @Override
@@ -33,22 +33,18 @@ public class BuildReconciler implements Reconciler {
 
         String key = request.getNamespace() + "/" + request.getName();
 
-
-        System.out.println(key);
         V1alpha2Build resourceInstance = buildSharedIndexInformer.getIndexer().getByKey(key);
 
-        if (key.equals("buildspace/petclinic-build-29")) {
-            V1alpha2BuildSpec spec = resourceInstance.getSpec();
-
-        }
-
         Map<String, String> annotations = null;
-        if (resourceInstance.getMetadata() != null) {
-            annotations = resourceInstance.getMetadata().getAnnotations();
+        if (resourceInstance != null) {
+            if (resourceInstance.getMetadata() != null) {
+                annotations = resourceInstance.getMetadata().getAnnotations();
+            }
         }
 
         if (annotations != null) {
             if (Objects.equals(annotations.get("image.kpack.io/reason"), "COMMIT")) {
+                logger.info("detect kpack build based on COMMIT :" + key);
                 V1alpha2BuildSpec spec = resourceInstance.getSpec();
                 if (spec != null) {
                     V1alpha2BuildSpecSource source = spec.getSource();
@@ -56,9 +52,9 @@ public class BuildReconciler implements Reconciler {
                         V1alpha2BuildSpecSourceGit git = source.getGit();
 
                         if (git != null) {
-                            System.out.println("aaa" + git);
                             String revision = git.getRevision();
                             String url = git.getUrl();
+                            logger.info("GitUrl :" + url + " Revision:" + revision);
                             if (revision != null && url != null) {
 
                                 V1alpha2BuildStatus status = resourceInstance.getStatus();
@@ -69,17 +65,12 @@ public class BuildReconciler implements Reconciler {
                                     if (conditions != null) {
                                         if (conditions.size() > 0) {
                                             success = conditions.get(0).getStatus();
-
                                         } else {
                                             success = "Pending";
                                         }
                                     }
-                                    CommitStatus commitStatus = new CommitStatus();
-                                    String description = "Build for revision " + revision + " status :" + success;
-                                    commitStatus.setId(revision);
-                                    commitStatus.setId(description);
-                                    commitStatusRepository.save(commitStatus);
-                                    githubStatus.updateStatus(url, revision, success);
+                                    logger.info("Attempting to update commit status");
+                                    commitStatusService.updateStatus(key, url, revision, success);
                                 }
                             }
                         }
