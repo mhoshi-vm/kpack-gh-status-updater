@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kpack-gh-status-updater
+  namespace: kpack
+spec:
+  selector:
+    matchLabels:
+      app: kpack-gh-status-updater
+  template:
+    metadata:
+      labels:
+        app: kpack-gh-status-updater
+    spec:
+      containers:
+        - env:
+            - name: GITHUB_TOKEN
+              # kubectl create secret generic -n kpack github-status-token --from-literal=token=github_pat_*
+              valueFrom:
+                secretKeyRef:
+                  key: token
+                  name: github-status-token
+          image: ghcr.io/mhoshi-vm/kpack-gh-status-update:latest
+          name: kpack-gh-status-updater
+          resources: {}
+          securityContext:
+            runAsUser: 1000
+      serviceAccountName: kpack-gh-status-updater-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kpack-gh-status-updater-role
+rules:
+  - apiGroups:
+      - kpack.io
+    resources:
+      - builds
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kpack-gh-status-updater-role-binding
+  namespace: kpack
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kpack-gh-status-updater-role
+subjects:
+  - kind: ServiceAccount
+    name: kpack-gh-status-updater-sa
+    namespace: kpack
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kpack-gh-status-updater-sa
+  namespace: kpack
