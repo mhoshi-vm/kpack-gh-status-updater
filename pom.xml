@@ -14,7 +14,7 @@
     <name>kpack-gh-status-updater</name>
     <description>kpack-gh-status-updater</description>
     <properties>
-        <java.version>17</java.version>
+        <java.version>11</java.version>
         <kubernetes.client>16.0.2</kubernetes.client>
     </properties>
     <dependencies>
