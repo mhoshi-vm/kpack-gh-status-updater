@@ -69,8 +69,9 @@ public class BuildReconciler implements Reconciler {
                                             success = "Pending";
                                         }
                                     }
+                                    List<String> tags = spec.getTags();
                                     logger.info("Attempting to update commit status");
-                                    commitStatusService.updateStatus(key, url, revision, success);
+                                    commitStatusService.updateStatus(key, url, revision, success, tags);
                                 }
                             }
                         }

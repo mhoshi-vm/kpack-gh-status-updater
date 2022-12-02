@@ -36,7 +36,7 @@ public class CommitStatusService {
     }
 
     // https://docs.github.com/en/rest/commits/statuses
-    public void updateStatus(String key, String url, String sha, String success) {
+    public void updateStatus(String key, String url, String sha, String success, List<String> tags) {
 
         logger.info("Updating database");
         updateStatusToRepo(key, sha, success);
@@ -72,6 +72,13 @@ public class CommitStatusService {
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("state", desiredStatus);
+        jsonObject.put("context", "Kpack");
+
+        if (tags.size() > 0){
+            String descriptionUrl = tags.get(0).replaceAll("^([^/]*)(.*)", "https://$1");
+            jsonObject.put("description", "image :" + tags.get(0));
+            jsonObject.put("target_url", descriptionUrl);
+        }
         HttpEntity<String> httpEntity = new HttpEntity<>(jsonObject.toString(), headers);
         logger.info("Executing API :" + targetUrl);
         restTemplate.postForObject(targetUrl, httpEntity, String.class);
