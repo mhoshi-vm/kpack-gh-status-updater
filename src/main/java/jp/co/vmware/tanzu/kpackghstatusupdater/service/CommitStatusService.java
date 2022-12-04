@@ -117,7 +117,7 @@ public class CommitStatusService {
     }
 
     public void deleteStatus(String key) {
-        commitStatusRepository.deleteCommitStatusByKpackKey(key);
+        commitStatusRepository.deleteCommitStatusesByKpackKey(key);
     }
 
 }

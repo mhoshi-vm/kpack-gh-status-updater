@@ -11,5 +11,5 @@ public interface CommitStatusRepository extends CrudRepository<CommitStatus, Int
 
     List<CommitStatus> findCommitStatusesBySha(String sha);
 
-    void deleteCommitStatusByKpackKey(String key);
+    void deleteCommitStatusesByKpackKey(String key);
 }
