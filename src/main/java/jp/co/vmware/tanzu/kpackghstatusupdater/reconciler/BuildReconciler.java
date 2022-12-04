@@ -40,6 +40,10 @@ public class BuildReconciler implements Reconciler {
             if (resourceInstance.getMetadata() != null) {
                 annotations = resourceInstance.getMetadata().getAnnotations();
             }
+        } else {
+            // https://github.com/kubernetes-client/java/blob/2e95de4b83da764884b648bf085d9edf469c65e0/extended/src/main/java/io/kubernetes/client/extended/controller/reconciler/Reconciler.java#L21
+            logger.info("detect kpack build deleted : " + key);
+            commitStatusService.deleteStatus(key);
         }
 
         if (annotations != null) {
