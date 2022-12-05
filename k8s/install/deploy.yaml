@@ -24,6 +24,9 @@ spec:
           name: kpack-gh-status-updater
           resources: {}
           securityContext:
+            capabilities:
+              drop:
+              - ALL
             allowPrivilegeEscalation: false
             runAsNonRoot: true
             seccompProfile:
