@@ -25,6 +25,9 @@ spec:
           resources: {}
           securityContext:
             allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
             runAsUser: 1000
       serviceAccountName: kpack-gh-status-updater-sa
 ---
