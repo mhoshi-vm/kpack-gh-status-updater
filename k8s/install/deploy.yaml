@@ -24,6 +24,7 @@ spec:
           name: kpack-gh-status-updater
           resources: {}
           securityContext:
+            allowPrivilegeEscalation: false
             runAsUser: 1000
       serviceAccountName: kpack-gh-status-updater-sa
 ---
