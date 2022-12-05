@@ -46,14 +46,19 @@ public class CommitStatusService {
 
         String apiUrl = null;
         HttpHeaders headers = new HttpHeaders();
+        String statusKey = "state";
 
         if (url.startsWith("https://github.com/")) {
             headers.set("Accept", "application/vnd.github+json");
             headers.set("Authorization", "Bearer " + githubToken);
             apiUrl = url.replace("https://github.com/", "https://api.github.com/repos/");
+            statusKey = "state";
         } else if (url.contains("gitea")) {
+            headers.set("Accept", "application/json");
+            headers.set("Content-Type", "application/json");
             headers.set("Authorization", "token " + githubToken);
             apiUrl = url.replaceAll("^(https*://[^/]*)(.*)", "$1/api/v1/repos$2");
+            statusKey = "status";
         }
 
         String targetUrl = apiUrl + "/statuses/" + sha;
@@ -61,8 +66,8 @@ public class CommitStatusService {
         HttpEntity<Void> getEntity = new HttpEntity<>(headers);
 
         JsonNode responseBody = restTemplate.exchange(targetUrl, HttpMethod.GET, getEntity, JsonNode.class).getBody();
-        if (responseBody != null && responseBody.get(0) != null) {
-            String latestStatus = responseBody.get(0).get("state").textValue();
+        if (responseBody != null && responseBody.get(0) != null && responseBody.get(0).get(statusKey) != null) {
+            String latestStatus = responseBody.get(0).get(statusKey).textValue();
 
             if (latestStatus.equals(desiredStatus)) {
                 logger.info("No status change for " + key + " : " + sha + " , skipping");
