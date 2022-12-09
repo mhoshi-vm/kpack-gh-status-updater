@@ -46,7 +46,7 @@ public class BuildReconciler implements Reconciler {
         }
 
         if (annotations != null) {
-            if (Objects.equals(annotations.get("image.kpack.io/reason"), "COMMIT")) {
+            if (annotations.get("image.kpack.io/reason").contains("COMMIT")) {
                 logger.info("detect kpack build based on COMMIT :" + key);
                 V1alpha2BuildSpec spec = resourceInstance.getSpec();
                 if (spec != null) {
