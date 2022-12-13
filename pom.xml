@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.6</version>
+        <version>3.0.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>jp.co.vmware.tanzu</groupId>
@@ -14,8 +14,8 @@
     <name>kpack-gh-status-updater</name>
     <description>kpack-gh-status-updater</description>
     <properties>
-        <java.version>11</java.version>
-        <kubernetes.client>16.0.2</kubernetes.client>
+        <java.version>17</java.version>
+        <kubernetes.client>17.0.0</kubernetes.client>
     </properties>
     <dependencies>
         <dependency>
